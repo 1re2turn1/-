@@ -1,0 +1,24 @@
+{
+  "name": "wechat-rss-webhook",
+  "version": "1.0.0",
+  "description": "自动读取微信公众号内容的Webhook推送服务",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "wechat",
+    "rss",
+    "webhook",
+    "we-mp-rss"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "rss-parser": "^3.13.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  }
+}

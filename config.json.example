@@ -1,0 +1,19 @@
+{
+  "feeds": [
+    {
+      "name": "示例公众号1",
+      "url": "http://localhost:4000/rss/示例公众号1",
+      "enabled": true
+    },
+    {
+      "name": "示例公众号2",
+      "url": "http://localhost:4000/rss/示例公众号2",
+      "enabled": false
+    }
+  ],
+  "settings": {
+    "pollInterval": 300,
+    "webhookTargetUrl": "",
+    "maxArticlesPerFetch": 50
+  }
+}
