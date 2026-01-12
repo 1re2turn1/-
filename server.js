@@ -9,7 +9,11 @@ const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
 // 用于存储已处理的文章ID，避免重复处理
+// 注意: 使用内存存储，服务重启后会丢失。生产环境建议使用持久化存储（数据库或文件）
 const processedItems = new Set();
+
+// 存储定时器ID，用于清理
+let pollingIntervalId = null;
 
 // 中间件
 app.use(express.json());
@@ -99,9 +103,11 @@ app.get('/', (req, res) => {
  * 状态查询端点
  */
 app.get('/status', (req, res) => {
+  // 只返回最近10条，避免大数组
+  const recentItems = Array.from(processedItems).slice(-10);
   res.json({
     processedCount: processedItems.size,
-    recentItems: Array.from(processedItems).slice(-10)
+    recentItems: recentItems
   });
 });
 
@@ -186,7 +192,7 @@ async function processArticle(article) {
  * 定时轮询RSS（可选）
  */
 function startPolling() {
-  const pollInterval = parseInt(process.env.POLL_INTERVAL) || 300;
+  const pollInterval = parseInt(process.env.POLL_INTERVAL, 10) || 300;
   const feedUrl = process.env.RSS_FEED_URL;
   
   if (!feedUrl) {
@@ -196,7 +202,7 @@ function startPolling() {
   
   console.log(`启动自动轮询，间隔: ${pollInterval}秒`);
   
-  setInterval(async () => {
+  pollingIntervalId = setInterval(async () => {
     try {
       console.log('\n=== 开始定时获取RSS ===');
       await fetchAndProcessRSS(feedUrl);
@@ -228,10 +234,16 @@ app.listen(PORT, HOST, () => {
 // 优雅关闭
 process.on('SIGTERM', () => {
   console.log('收到SIGTERM信号，正在关闭服务...');
+  if (pollingIntervalId) {
+    clearInterval(pollingIntervalId);
+  }
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
   console.log('\n收到SIGINT信号，正在关闭服务...');
+  if (pollingIntervalId) {
+    clearInterval(pollingIntervalId);
+  }
   process.exit(0);
 });
