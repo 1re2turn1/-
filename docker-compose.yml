@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # we-mp-rss服务 - 将微信公众号转换为RSS
+  we-mp-rss:
+    image: ghcr.io/hillerliao/we-mp-rss:latest
+    container_name: we-mp-rss
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+    restart: unless-stopped
+    networks:
+      - wechat-rss-network
+
+  # 本服务 - Webhook RSS处理器
+  wechat-rss-webhook:
+    build: .
+    container_name: wechat-rss-webhook
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+      - RSS_FEED_URL=http://we-mp-rss:4000/rss/示例公众号
+      - POLL_INTERVAL=300
+      # - WEBHOOK_TARGET_URL=https://your-webhook-url.com/callback
+    restart: unless-stopped
+    depends_on:
+      - we-mp-rss
+    networks:
+      - wechat-rss-network
+
+networks:
+  wechat-rss-network:
+    driver: bridge
