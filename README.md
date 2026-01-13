@@ -22,7 +22,13 @@ we-mp-rss (WeRSS) 是一个将微信公众号文章转换为RSS订阅源的工�
 
 ### 使用Docker部署we-mp-rss（推荐）
 
+**在你的服务器或本地电脑的终端中运行以下命令：**
+
 ```bash
+# 创建数据目录（用于持久化存储）
+mkdir -p ./data
+
+# 启动we-mp-rss容器
 docker run -d \
   --name we-mp-rss \
   -p 8001:8001 \
@@ -30,27 +36,115 @@ docker run -d \
   ghcr.io/rachelos/we-mp-rss:latest
 ```
 
-> **注意**: we-mp-rss 默认使用端口 **8001**，并会将数据保存到挂载的 `./data` 目录中。
-
-### 从源码部署we-mp-rss
-
-```bash
-git clone https://github.com/rachelos/we-mp-rss.git
-cd we-mp-rss
-# 按照其 README 说明安装和配置
+**预期结果：**
+```
+Unable to find image 'ghcr.io/rachelos/we-mp-rss:latest' locally
+latest: Pulling from rachelos/we-mp-rss
+...
+Status: Downloaded newer image for ghcr.io/rachelos/we-mp-rss:latest
+a1b2c3d4e5f6... (容器ID)
 ```
 
-部署完成后，访问 `http://localhost:8001` 添加你想要订阅的微信公众号。
+**验证部署成功：**
 
-> **详细部署说明**: 请参考 [we-mp-rss 官方文档](https://github.com/rachelos/we-mp-rss)
+1. 检查容器是否运行：
+```bash
+docker ps | grep we-mp-rss
+```
+预期看到容器状态为 `Up`。
+
+2. 检查服务是否可访问：
+```bash
+curl http://localhost:8001
+```
+预期返回HTML页面内容（we-mp-rss的管理界面）。
+
+3. 或者在浏览器中访问 `http://localhost:8001`，应该能看到we-mp-rss的Web管理界面。
+
+> **注意**: 
+> - we-mp-rss 默认使用端口 **8001**
+> - 数据会保存到 `./data` 目录中，容器重启后数据不会丢失
+> - 如果端口8001已被占用，可以修改为其他端口，如：`-p 8002:8001`
+
+### we-mp-rss 配置步骤
+
+部署完成后，需要在we-mp-rss中添加微信公众号：
+
+**步骤1：访问管理界面**
+- 在浏览器中打开 `http://localhost:8001`
+- 预期看到：we-mp-rss的首页，显示"添加订阅"等操作按钮
+
+**步骤2：添加公众号订阅**
+1. 点击"添加订阅"或类似按钮
+2. 输入微信公众号的名称或ID
+   - 例如：`人民日报`、`科技美学` 等
+3. 点击"确认"或"添加"按钮
+4. 等待系统抓取文章（首次可能需要几分钟）
+
+**步骤3：获取RSS地址**
+- 添加成功后，页面会显示该公众号的RSS订阅链接
+- RSS地址格式：`http://localhost:8001/rss/公众号名称`
+- 例如：`http://localhost:8001/rss/人民日报`
+
+**步骤4：测试RSS源**
+```bash
+# 替换为你的实际公众号名称
+curl "http://localhost:8001/rss/人民日报"
+```
+
+**预期结果：**
+返回XML格式的RSS内容，包含文章列表：
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>人民日报</title>
+    <item>
+      <title>文章标题</title>
+      <link>文章链接</link>
+      ...
+    </item>
+  </channel>
+</rss>
+```
+
+**如何判断配置成功：**
+- ✅ 能够访问we-mp-rss管理界面
+- ✅ 成功添加公众号订阅
+- ✅ RSS地址返回XML格式的文章列表
+- ✅ 文章列表中至少有一篇文章
+
+> **详细配置说明**: 
+> - we-mp-rss使用Python开发，基于FastAPI框架
+> - 数据存储在SQLite数据库中（位于./data目录）
+> - 支持多个公众号同时订阅
+> - 更多高级配置请参考 [we-mp-rss 官方文档](https://github.com/rachelos/we-mp-rss)
 
 ## 安装步骤
 
 ### 1. 安装依赖
 
+**在项目根目录运行：**
+
 ```bash
+cd /home/runner/work/AutoWechat/AutoWechat  # 进入项目目录
 npm install
 ```
+
+**预期结果：**
+```
+added 83 packages, and audited 84 packages in 4s
+
+19 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+```
+
+**如何判断成功：**
+- ✅ 没有报错信息
+- ✅ 生成了 `node_modules` 目录
+- ✅ 生成或更新了 `package-lock.json` 文件
 
 ### 2. 配置环境变量（必需）
 
@@ -58,11 +152,34 @@ npm install
 
 **步骤 1**: 复制环境变量模板文件
 
+**在项目根目录运行：**
 ```bash
 cp .env.example .env
 ```
 
-**步骤 2**: 编辑 `.env` 文件，根据你的实际情况修改以下配置项：
+**预期结果：**
+在项目根目录下生成 `.env` 文件。
+
+**验证：**
+```bash
+ls -la .env
+```
+应该能看到 `.env` 文件。
+
+**步骤 2**: 编辑 `.env` 文件
+
+**使用文本编辑器打开 `.env` 文件：**
+```bash
+# 使用nano编辑器
+nano .env
+
+# 或使用vim
+vim .env
+
+# 或使用任何你喜欢的编辑器
+```
+
+**根据你的实际情况修改以下配置项：**
 
 ```env
 # 服务器配置
@@ -71,7 +188,7 @@ HOST=0.0.0.0                 # 监听地址，0.0.0.0表示接受所有网络接
 
 # RSS 源配置（从we-mp-rss获取）
 # 重要：请将下面的URL替换为你实际的we-mp-rss服务地址和公众号名称
-RSS_FEED_URL=http://localhost:8001/rss/你的公众号名称
+RSS_FEED_URL=http://localhost:8001/rss/人民日报
 
 # Webhook 配置（可选）
 # 如果需要将处理后的文章转发到其他服务，请配置此项
@@ -81,6 +198,11 @@ WEBHOOK_TARGET_URL=
 # 自动轮询RSS的时间间隔，默认300秒（5分钟）
 POLL_INTERVAL=300
 ```
+
+**配置说明：**
+- 将 `RSS_FEED_URL` 中的 `人民日报` 替换为你在we-mp-rss中添加的实际公众号名称
+- 如果we-mp-rss部署在其他服务器，需要修改 `localhost` 为实际的服务器地址
+- 保存文件并退出编辑器（nano: Ctrl+X, 然后Y, 然后Enter；vim: ESC, 然后:wq）
 
 #### 必需配置项说明
 
@@ -106,11 +228,82 @@ POLL_INTERVAL=300
 
 ### 3. 启动服务
 
+**在项目根目录运行：**
+
 ```bash
 npm start
 ```
 
+**预期结果：**
+```
+✅ 微信公众号RSS Webhook服务已启动
+🌐 监听地址: http://0.0.0.0:3000
+📡 Webhook端点: http://0.0.0.0:3000/webhook
+📊 健康检查: http://0.0.0.0:3000/health
+
+配置信息:
+- RSS Feed URL: http://localhost:8001/rss/人民日报
+- 目标Webhook: 未配置
+- 轮询间隔: 300秒
+
+启动自动轮询，间隔: 300秒
+
+=== 开始定时获取RSS ===
+正在获取RSS: http://localhost:8001/rss/人民日报
+RSS标题: 人民日报
+发现 10 篇文章
+...
+```
+
+**如何判断启动成功：**
+
+1. **检查端口监听：**
+```bash
+# 在另一个终端窗口运行
+netstat -tuln | grep 3000
+```
+预期看到：`tcp  0  0.0.0.0:3000  0.0.0.0:*  LISTEN`
+
+2. **测试健康检查端点：**
+```bash
+# 在另一个终端窗口运行
+curl http://localhost:3000/health
+```
+预期输出：
+```json
+{
+  "status": "ok",
+  "timestamp": "2026-01-13T15:20:00.000Z",
+  "processedCount": 0
+}
+```
+
+3. **检查服务日志：**
+- 如果配置了 `RSS_FEED_URL`，应该能看到服务自动开始获取RSS内容
+- 如果成功获取文章，会显示 "发现 N 篇文章" 和文章标题
+- 如果没有配置 `RSS_FEED_URL`，会看到 "未配置RSS_FEED_URL，跳过自动轮询"
+
+**常见问题：**
+
+❌ **端口已被占用**
+```
+Error: listen EADDRINUSE: address already in use :::3000
+```
+解决方法：修改 `.env` 中的 `PORT` 为其他端口，如 `PORT=3001`
+
+❌ **无法连接到RSS源**
+```
+获取RSS失败: getaddrinfo ENOTFOUND localhost
+```
+解决方法：
+1. 确认we-mp-rss服务已启动
+2. 检查 `RSS_FEED_URL` 配置是否正确
+3. 运行 `curl http://localhost:8001/rss/公众号名称` 测试连接
+
 服务将在 `http://localhost:3000` 启动（如果你修改了PORT配置，则使用你配置的端口）。
+
+**停止服务：**
+在终端按 `Ctrl+C` 可以停止服务。服务会优雅关闭，清理资源。
 
 ## 使用方式
 
