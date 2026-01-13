@@ -44,14 +44,14 @@ curl -X POST http://localhost:3000/webhook \
   -H "Content-Type: application/json" \
   -d '{
     "type": "rss_update",
-    "url": "http://localhost:4000/rss/test"
+    "url": "http://localhost:8001/rss/test"
   }'
 ```
 
 ### 测试手动获取RSS
 
 ```bash
-curl "http://localhost:3000/fetch?url=http://localhost:4000/rss/test"
+curl "http://localhost:3000/fetch?url=http://localhost:8001/rss/test"
 ```
 
 ## 与we-mp-rss集成的完整示例
@@ -61,26 +61,27 @@ curl "http://localhost:3000/fetch?url=http://localhost:4000/rss/test"
 ```bash
 docker run -d \
   --name we-mp-rss \
-  -p 4000:4000 \
-  ghcr.io/hillerliao/we-mp-rss:latest
+  -p 8001:8001 \
+  -v ./data:/app/data \
+  ghcr.io/rachelos/we-mp-rss:latest
 ```
 
 ### 2. 访问we-mp-rss管理界面
 
-打开浏览器访问 `http://localhost:4000`，添加你想订阅的微信公众号。
+打开浏览器访问 `http://localhost:8001`，添加你想订阅的微信公众号。
 
 ### 3. 获取RSS地址
 
 添加公众号后，你会得到一个RSS地址，格式类似:
 ```
-http://localhost:4000/rss/公众号名称
+http://localhost:8001/rss/公众号名称
 ```
 
 ### 4. 配置本服务
 
 编辑 `.env` 文件:
 ```env
-RSS_FEED_URL=http://localhost:4000/rss/你的公众号名称
+RSS_FEED_URL=http://localhost:8001/rss/你的公众号名称
 POLL_INTERVAL=300
 ```
 
@@ -102,7 +103,7 @@ npm start
 ```json
 {
   "type": "rss_update",
-  "url": "http://localhost:4000/rss/公众号名称"
+  "url": "http://localhost:8001/rss/公众号名称"
 }
 ```
 
@@ -132,7 +133,7 @@ WEBHOOK_TARGET_URL=https://your-service.com/webhook
 
 确保RSS源URL正确并可访问:
 ```bash
-curl http://localhost:4000/rss/公众号名称
+curl http://localhost:8001/rss/公众号名称
 ```
 
 ### 问题: 端口被占用

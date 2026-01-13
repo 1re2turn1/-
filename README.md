@@ -18,28 +18,31 @@
 
 ## we-mp-rss 部署说明
 
-we-mp-rss 是一个将微信公众号文章转换为RSS订阅源的工具。你需要先部署它：
+we-mp-rss (WeRSS) 是一个将微信公众号文章转换为RSS订阅源的工具。你需要先部署它：
 
-### 选项1: 使用Docker部署we-mp-rss
+### 使用Docker部署we-mp-rss（推荐）
 
 ```bash
 docker run -d \
   --name we-mp-rss \
-  -p 4000:4000 \
-  -e PORT=4000 \
-  ghcr.io/hillerliao/we-mp-rss:latest
+  -p 8001:8001 \
+  -v ./data:/app/data \
+  ghcr.io/rachelos/we-mp-rss:latest
 ```
 
-### 选项2: 从源码部署we-mp-rss
+> **注意**: we-mp-rss 默认使用端口 **8001**，并会将数据保存到挂载的 `./data` 目录中。
+
+### 从源码部署we-mp-rss
 
 ```bash
-git clone https://github.com/hillerliao/we-mp-rss.git
+git clone https://github.com/rachelos/we-mp-rss.git
 cd we-mp-rss
-npm install
-npm start
+# 按照其 README 说明安装和配置
 ```
 
-部署完成后，访问 `http://localhost:4000` 添加你想要订阅的微信公众号。
+部署完成后，访问 `http://localhost:8001` 添加你想要订阅的微信公众号。
+
+> **详细部署说明**: 请参考 [we-mp-rss 官方文档](https://github.com/rachelos/we-mp-rss)
 
 ## 安装步骤
 
@@ -49,30 +52,57 @@ npm start
 npm install
 ```
 
-### 2. 配置环境变量
+### 2. 配置环境变量（必需）
 
-复制 `.env.example` 为 `.env` 并修改配置：
+本项目使用环境变量进行配置。请按以下步骤配置：
+
+**步骤 1**: 复制环境变量模板文件
 
 ```bash
 cp .env.example .env
 ```
 
-编辑 `.env` 文件：
+**步骤 2**: 编辑 `.env` 文件，根据你的实际情况修改以下配置项：
 
 ```env
 # 服务器配置
-PORT=3000
-HOST=0.0.0.0
+PORT=3000                    # 本服务监听端口，默认3000
+HOST=0.0.0.0                 # 监听地址，0.0.0.0表示接受所有网络接口
 
-# RSS 源配置 (从we-mp-rss获取)
-RSS_FEED_URL=http://localhost:4000/rss/公众号名称
+# RSS 源配置（从we-mp-rss获取）
+# 重要：请将下面的URL替换为你实际的we-mp-rss服务地址和公众号名称
+RSS_FEED_URL=http://localhost:8001/rss/你的公众号名称
 
-# Webhook 配置 (可选，用于转发处理后的内容)
-WEBHOOK_TARGET_URL=https://your-webhook-endpoint.com/callback
+# Webhook 配置（可选）
+# 如果需要将处理后的文章转发到其他服务，请配置此项
+WEBHOOK_TARGET_URL=
 
-# 轮询间隔（秒），默认300秒(5分钟)
+# 轮询间隔（秒）
+# 自动轮询RSS的时间间隔，默认300秒（5分钟）
 POLL_INTERVAL=300
 ```
+
+#### 必需配置项说明
+
+| 配置项 | 是否必需 | 说明 | 示例值 |
+|--------|---------|------|--------|
+| `PORT` | 否 | 服务监听端口 | `3000` |
+| `HOST` | 否 | 服务监听地址 | `0.0.0.0` |
+| `RSS_FEED_URL` | 可选* | RSS源地址 | `http://localhost:8001/rss/公众号名称` |
+| `WEBHOOK_TARGET_URL` | 否 | 转发目标地址 | `https://your-webhook.com/callback` |
+| `POLL_INTERVAL` | 否 | 轮询间隔（秒） | `300` |
+
+\* **注意**: 
+- 如果使用**自动轮询模式**，必须配置 `RSS_FEED_URL`
+- 如果使用**Webhook推送**或**手动触发模式**，则不需要配置 `RSS_FEED_URL`
+
+#### 如何获取RSS_FEED_URL
+
+1. 启动 we-mp-rss 服务（见上文部署说明）
+2. 访问 `http://localhost:8001` 打开管理界面
+3. 添加你要订阅的微信公众号
+4. 添加成功后，you会得到一个RSS地址，格式为：`http://localhost:8001/rss/公众号名称`
+5. 将这个地址填入 `.env` 文件的 `RSS_FEED_URL` 配置项
 
 ### 3. 启动服务
 
@@ -80,7 +110,7 @@ POLL_INTERVAL=300
 npm start
 ```
 
-服务将在 `http://localhost:3000` 启动。
+服务将在 `http://localhost:3000` 启动（如果你修改了PORT配置，则使用你配置的端口）。
 
 ## 使用方式
 
@@ -94,7 +124,7 @@ npm start
 ```json
 {
   "type": "rss_update",
-  "url": "http://localhost:4000/rss/公众号名称"
+  "url": "http://localhost:8001/rss/公众号名称"
 }
 ```
 
@@ -103,7 +133,7 @@ npm start
 使用浏览器或curl访问：
 
 ```bash
-curl "http://localhost:3000/fetch?url=http://localhost:4000/rss/公众号名称"
+curl "http://localhost:3000/fetch?url=http://localhost:8001/rss/公众号名称"
 ```
 
 ### 方式3: 自动定时轮询
@@ -121,7 +151,7 @@ curl -X POST http://localhost:3000/webhook \
   -H "Content-Type: application/json" \
   -d '{
     "type": "rss_update",
-    "url": "http://localhost:4000/rss/公众号名称"
+    "url": "http://localhost:8001/rss/公众号名称"
   }'
 ```
 
@@ -130,7 +160,7 @@ curl -X POST http://localhost:3000/webhook \
 
 **请求示例：**
 ```bash
-curl "http://localhost:3000/fetch?url=http://localhost:4000/rss/公众号名称"
+curl "http://localhost:3000/fetch?url=http://localhost:8001/rss/公众号名称"
 ```
 
 ### GET /health
@@ -195,7 +225,7 @@ Copilot Agent或其他服务
 ### 场景1: 监控技术博客更新
 
 ```env
-RSS_FEED_URL=http://localhost:4000/rss/阮一峰的网络日志
+RSS_FEED_URL=http://localhost:8001/rss/阮一峰的网络日志
 POLL_INTERVAL=600
 WEBHOOK_TARGET_URL=https://your-notification-service.com/notify
 ```
@@ -248,7 +278,7 @@ MIT
 
 ## 相关资源
 
-- [we-mp-rss GitHub仓库](https://github.com/hillerliao/we-mp-rss)
+- [we-mp-rss GitHub仓库](https://github.com/rachelos/we-mp-rss)
 - [RSS Parser文档](https://www.npmjs.com/package/rss-parser)
 - [Express.js文档](https://expressjs.com/)
 

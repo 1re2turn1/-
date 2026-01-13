@@ -4,7 +4,7 @@
 # 用于测试Webhook端点功能
 
 WEBHOOK_URL="${WEBHOOK_URL:-http://localhost:3000/webhook}"
-RSS_URL="http://localhost:4000/rss/示例公众号"
+RSS_URL="http://localhost:8001/rss/示例公众号"
 
 echo "正在发送Webhook推送到: $WEBHOOK_URL"
 echo "RSS源: $RSS_URL"

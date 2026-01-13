@@ -16,14 +16,14 @@
 # 使用 Docker 启动 we-mp-rss
 docker run -d \
   --name we-mp-rss \
-  -p 4000:4000 \
-  ghcr.io/hillerliao/we-mp-rss:latest
+  -p 8001:8001 \
+  ghcr.io/rachelos/we-mp-rss:latest
 
 # 等待服务启动
 sleep 5
 
 # 验证 we-mp-rss 运行状态
-curl http://localhost:4000
+curl http://localhost:8001
 ```
 
 **预期结果**: 返回 we-mp-rss 管理页面的 HTML
@@ -38,7 +38,7 @@ cp .env.example .env
 cat > .env << 'EOF'
 PORT=3000
 HOST=0.0.0.0
-RSS_FEED_URL=http://localhost:4000/rss/test
+RSS_FEED_URL=http://localhost:8001/rss/test
 POLL_INTERVAL=60
 WEBHOOK_TARGET_URL=
 EOF
@@ -73,16 +73,16 @@ curl http://localhost:3000/status
 
 ### 步骤 5: 在 we-mp-rss 中添加公众号
 
-1. 打开浏览器访问: `http://localhost:4000`
+1. 打开浏览器访问: `http://localhost:8001`
 2. 点击"添加公众号"
 3. 输入公众号名称（如"人民日报"）
-4. 记录生成的 RSS 地址，例如: `http://localhost:4000/rss/人民日报`
+4. 记录生成的 RSS 地址，例如: `http://localhost:8001/rss/人民日报`
 
 ### 步骤 6: 测试手动获取
 
 ```bash
 # 使用实际的 RSS 地址
-RSS_URL="http://localhost:4000/rss/人民日报"
+RSS_URL="http://localhost:8001/rss/人民日报"
 
 curl "http://localhost:3000/fetch?url=$RSS_URL"
 
@@ -98,7 +98,7 @@ curl -X POST http://localhost:3000/webhook \
   -H "Content-Type: application/json" \
   -d "{
     \"type\": \"rss_update\",
-    \"url\": \"http://localhost:4000/rss/人民日报\"
+    \"url\": \"http://localhost:8001/rss/人民日报\"
   }"
 
 # 预期输出:
@@ -125,7 +125,7 @@ tail -f server.log
 
 # 应该看到类似的输出:
 # === 开始定时获取RSS ===
-# 正在获取RSS: http://localhost:4000/rss/人民日报
+# 正在获取RSS: http://localhost:8001/rss/人民日报
 # RSS标题: ...
 # 发现 N 篇文章
 # === 定时获取完成 ===
@@ -173,7 +173,7 @@ docker-compose ps
 # - wechat-rss-webhook
 
 # 测试 we-mp-rss
-curl http://localhost:4000
+curl http://localhost:8001
 
 # 测试 webhook 服务
 curl http://localhost:3000/health
@@ -183,7 +183,7 @@ curl http://localhost:3000/health
 
 ```bash
 # 1. 访问 we-mp-rss 添加公众号
-open http://localhost:4000
+open http://localhost:8001
 
 # 2. 更新 docker-compose.yml 中的 RSS_FEED_URL
 
@@ -219,7 +219,7 @@ sleep 3
 ./examples/check-status.sh
 
 # 测试手动获取
-./examples/test-fetch.sh "http://localhost:4000/rss/test"
+./examples/test-fetch.sh "http://localhost:8001/rss/test"
 
 # 测试 Webhook
 ./examples/test-webhook.sh
@@ -244,7 +244,7 @@ docker restart we-mp-rss
 
 ```bash
 # 测试连接
-curl http://localhost:4000/rss/test
+curl http://localhost:8001/rss/test
 
 # 检查网络
 docker network ls
@@ -252,17 +252,17 @@ docker network inspect wechat-rss-network
 
 # 在 Docker 内测试
 docker exec -it wechat-rss-webhook sh
-wget -O- http://we-mp-rss:4000
+wget -O- http://we-mp-rss:8001
 ```
 
 ### RSS 解析失败
 
 ```bash
 # 直接访问 RSS 源验证格式
-curl http://localhost:4000/rss/公众号名称
+curl http://localhost:8001/rss/公众号名称
 
 # 检查 RSS 格式是否正确
-curl http://localhost:4000/rss/公众号名称 | xmllint --format -
+curl http://localhost:8001/rss/公众号名称 | xmllint --format -
 ```
 
 ## 性能测试（可选）
@@ -278,7 +278,7 @@ ab -n 100 -c 10 -p webhook.json -T application/json \
   http://localhost:3000/webhook
 
 # webhook.json 内容:
-# {"type":"rss_update","url":"http://localhost:4000/rss/test"}
+# {"type":"rss_update","url":"http://localhost:8001/rss/test"}
 ```
 
 ### 监控资源使用
@@ -313,7 +313,7 @@ curl -f http://localhost:3000/health || exit 1
 
 # 测试 we-mp-rss
 echo "测试 we-mp-rss..."
-curl -f http://localhost:4000 || exit 1
+curl -f http://localhost:8001 || exit 1
 
 # 测试 Webhook
 echo "测试 Webhook 端点..."

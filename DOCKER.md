@@ -35,7 +35,7 @@ docker-compose down
 
 ```yaml
 environment:
-  - RSS_FEED_URL=http://we-mp-rss:4000/rss/你的公众号名称
+  - RSS_FEED_URL=http://we-mp-rss:8001/rss/你的公众号名称
   - POLL_INTERVAL=300
   - WEBHOOK_TARGET_URL=https://your-webhook.com/callback
 ```
@@ -54,7 +54,7 @@ docker build -t wechat-rss-webhook .
 docker run -d \
   --name wechat-rss-webhook \
   -p 3000:3000 \
-  -e RSS_FEED_URL=http://your-we-mp-rss:4000/rss/公众号名称 \
+  -e RSS_FEED_URL=http://your-we-mp-rss:8001/rss/公众号名称 \
   -e POLL_INTERVAL=300 \
   wechat-rss-webhook
 ```
@@ -87,7 +87,7 @@ docker-compose up -d
 docker-compose ps
 
 # 检查we-mp-rss健康状态
-curl http://localhost:4000
+curl http://localhost:8001
 
 # 检查webhook服务健康状态
 curl http://localhost:3000/health
@@ -95,7 +95,7 @@ curl http://localhost:3000/health
 
 ### 3. 配置we-mp-rss
 
-访问 http://localhost:4000 添加要订阅的微信公众号。
+访问 http://localhost:8001 添加要订阅的微信公众号。
 
 ### 4. 更新RSS源配置
 
@@ -103,7 +103,7 @@ curl http://localhost:3000/health
 
 ```yaml
 environment:
-  - RSS_FEED_URL=http://we-mp-rss:4000/rss/实际的公众号名称
+  - RSS_FEED_URL=http://we-mp-rss:8001/rss/实际的公众号名称
 ```
 
 重启服务：
@@ -119,7 +119,7 @@ docker-compose restart wechat-rss-webhook
 docker-compose logs wechat-rss-webhook
 
 # 手动触发一次获取
-curl "http://localhost:3000/fetch?url=http://localhost:4000/rss/公众号名称"
+curl "http://localhost:3000/fetch?url=http://localhost:8001/rss/公众号名称"
 ```
 
 ## 生产环境配置建议
@@ -129,7 +129,7 @@ curl "http://localhost:3000/fetch?url=http://localhost:4000/rss/公众号名称"
 创建 `.env` 文件：
 
 ```env
-RSS_FEED_URL=http://we-mp-rss:4000/rss/公众号名称
+RSS_FEED_URL=http://we-mp-rss:8001/rss/公众号名称
 POLL_INTERVAL=300
 WEBHOOK_TARGET_URL=https://your-webhook.com/callback
 ```
@@ -149,7 +149,7 @@ wechat-rss-webhook:
 
 ```yaml
 we-mp-rss:
-  image: ghcr.io/hillerliao/we-mp-rss:latest
+  image: ghcr.io/rachelos/we-mp-rss:latest
   volumes:
     - we-mp-rss-data:/app/data
 
@@ -193,7 +193,7 @@ docker-compose ps
 ```bash
 # 进入容器测试连接
 docker exec -it wechat-rss-webhook sh
-wget -O- http://we-mp-rss:4000
+wget -O- http://we-mp-rss:8001
 ```
 
 ### 端口冲突

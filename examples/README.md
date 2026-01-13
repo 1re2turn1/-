@@ -30,13 +30,13 @@
 ./examples/test-fetch.sh
 
 # 指定RSS URL
-./examples/test-fetch.sh "http://localhost:4000/rss/你的公众号"
+./examples/test-fetch.sh "http://localhost:8001/rss/你的公众号"
 ```
 
 **输出示例：**
 ```
 正在从服务器获取RSS: http://localhost:3000
-RSS源: http://localhost:4000/rss/示例公众号
+RSS源: http://localhost:8001/rss/示例公众号
 
 {"success":true,"message":"成功获取3篇文章","items":[...]}
 ```
@@ -52,7 +52,7 @@ RSS源: http://localhost:4000/rss/示例公众号
 **输出示例：**
 ```
 正在发送Webhook推送到: http://localhost:3000/webhook
-RSS源: http://localhost:4000/rss/示例公众号
+RSS源: http://localhost:8001/rss/示例公众号
 
 {"success":true,"message":"已处理RSS更新"}
 ```
@@ -66,7 +66,7 @@ npm start
 
 2. 如果测试we-mp-rss集成，确保we-mp-rss服务正在运行：
 ```bash
-docker run -d -p 4000:4000 ghcr.io/hillerliao/we-mp-rss:latest
+docker run -d -p 8001:8001 -v ./data:/app/data ghcr.io/rachelos/we-mp-rss:latest
 ```
 
 ## 自定义脚本
@@ -92,9 +92,9 @@ done
 # fetch-all.sh - 获取多个RSS源
 
 RSS_URLS=(
-  "http://localhost:4000/rss/公众号1"
-  "http://localhost:4000/rss/公众号2"
-  "http://localhost:4000/rss/公众号3"
+  "http://localhost:8001/rss/公众号1"
+  "http://localhost:8001/rss/公众号2"
+  "http://localhost:8001/rss/公众号3"
 )
 
 for url in "${RSS_URLS[@]}"; do

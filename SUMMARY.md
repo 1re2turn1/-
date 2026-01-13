@@ -116,10 +116,10 @@ docker-compose up -d
 
 ```bash
 # Docker方式
-docker run -d -p 4000:4000 ghcr.io/hillerliao/we-mp-rss:latest
+docker run -d -p 8001:8001 ghcr.io/rachelos/we-mp-rss:latest
 
 # 源码方式
-git clone https://github.com/hillerliao/we-mp-rss.git
+git clone https://github.com/rachelos/we-mp-rss.git
 cd we-mp-rss
 npm install && npm start
 ```
@@ -227,7 +227,7 @@ MIT License - 详见 LICENSE 文件
 
 ## 致谢
 
-- [we-mp-rss](https://github.com/hillerliao/we-mp-rss) - 微信公众号RSS转换工具
+- [we-mp-rss](https://github.com/rachelos/we-mp-rss) - 微信公众号RSS转换工具
 - [rss-parser](https://www.npmjs.com/package/rss-parser) - RSS解析库
 - [Express.js](https://expressjs.com/) - Web框架
 
