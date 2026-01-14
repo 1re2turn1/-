@@ -119,7 +119,7 @@ docker-compose restart wechat-rss-webhook
 docker-compose logs wechat-rss-webhook
 
 # 手动触发一次获取
-curl "http://localhost:3000/fetch?url=http://localhost:8001/rss/公众号名称"
+curl "http://localhost:3000/fetch?url=http://localhost:8001/feed/MP_WXS_3517365363.rss"
 ```
 
 ## 生产环境配置建议

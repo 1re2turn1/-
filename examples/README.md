@@ -30,13 +30,13 @@
 ./examples/test-fetch.sh
 
 # 指定RSS URL
-./examples/test-fetch.sh "http://localhost:8001/rss/你的公众号"
+./examples/test-fetch.sh "http://localhost:8001/feed/MP_WXS_数字ID.rss"
 ```
 
 **输出示例：**
 ```
 正在从服务器获取RSS: http://localhost:3000
-RSS源: http://localhost:8001/rss/示例公众号
+RSS源: http://localhost:8001/feed/MP_WXS_3517365363.rss
 
 {"success":true,"message":"成功获取3篇文章","items":[...]}
 ```
@@ -52,7 +52,7 @@ RSS源: http://localhost:8001/rss/示例公众号
 **输出示例：**
 ```
 正在发送Webhook推送到: http://localhost:3000/webhook
-RSS源: http://localhost:8001/rss/示例公众号
+RSS源: http://localhost:8001/feed/MP_WXS_3517365363.rss
 
 {"success":true,"message":"已处理RSS更新"}
 ```
@@ -92,9 +92,9 @@ done
 # fetch-all.sh - 获取多个RSS源
 
 RSS_URLS=(
-  "http://localhost:8001/rss/公众号1"
-  "http://localhost:8001/rss/公众号2"
-  "http://localhost:8001/rss/公众号3"
+  "http://localhost:8001/feed/MP_WXS_3517365363.rss"
+  "http://localhost:8001/feed/MP_WXS_3544998530.rss"
+  "http://localhost:8001/feed/MP_WXS_3555555555.rss"
 )
 
 for url in "${RSS_URLS[@]}"; do

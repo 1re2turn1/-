@@ -55,9 +55,9 @@ a1b2c3d4e5f6  ghcr.io/rachelos/we-mp-rss:latest  ...  Up 10 seconds  0.0.0.0:800
 
 **添加微信公众号：**
 1. 在we-mp-rss界面点击"添加订阅"
-2. 输入公众号名称，例如：`人民日报`
+2. 输入公众号名称或ID
 3. 等待抓取完成（可能需要1-2分钟）
-4. 记录生成的RSS地址：`http://localhost:8001/rss/人民日报`
+4. 记录生成的RSS地址，格式类似：`http://localhost:8001/feed/MP_WXS_3517365363.rss`
 
 ---
 
@@ -65,7 +65,18 @@ a1b2c3d4e5f6  ghcr.io/rachelos/we-mp-rss:latest  ...  Up 10 seconds  0.0.0.0:800
 
 **运行位置：** 在你想要存放项目的目录
 
+**Linux/macOS:**
 ```bash
+# 克隆项目（如果还没有克隆）
+git clone https://github.com/1re2turn1/AutoWechat.git
+cd AutoWechat
+
+# 安装依赖
+npm install
+```
+
+**Windows (PowerShell):**
+```powershell
 # 克隆项目（如果还没有克隆）
 git clone https://github.com/1re2turn1/AutoWechat.git
 cd AutoWechat
@@ -92,6 +103,7 @@ ls node_modules | wc -l
 
 **运行位置：** 在项目根目录 `AutoWechat/`
 
+**Linux/macOS:**
 ```bash
 # 复制配置模板
 cp .env.example .env
@@ -100,25 +112,43 @@ cp .env.example .env
 nano .env  # 或使用 vim、vi 等编辑器
 ```
 
+**Windows (PowerShell):**
+```powershell
+# 复制配置模板
+Copy-Item .env.example .env
+
+# 编辑配置文件
+notepad .env  # 或使用 code .env (VS Code)
+```
+
 **修改以下配置：**
 
 将 `RSS_FEED_URL` 改为你在第一步中记录的RSS地址：
 
 ```env
-RSS_FEED_URL=http://localhost:8001/rss/人民日报
+RSS_FEED_URL=http://localhost:8001/feed/MP_WXS_3517365363.rss
 ```
 
 其他配置项可以保持默认值。
 
 **保存并退出：**
-- nano: 按 `Ctrl+X`，然后按 `Y`，然后按 `Enter`
-- vim: 按 `ESC`，输入 `:wq`，按 `Enter`
+- Linux/macOS nano: 按 `Ctrl+X`，然后按 `Y`，然后按 `Enter`
+- Linux/macOS vim: 按 `ESC`，输入 `:wq`，按 `Enter`
+- Windows 记事本: 点击"文件" -> "保存"
 
 **验证配置：**
+
+**Linux/macOS:**
 ```bash
 cat .env | grep RSS_FEED_URL
 ```
-应该看到：`RSS_FEED_URL=http://localhost:8001/rss/人民日报`
+
+**Windows (PowerShell):**
+```powershell
+Select-String -Path .env -Pattern "RSS_FEED_URL"
+```
+
+应该看到你配置的RSS地址。
 
 ---
 
@@ -138,15 +168,15 @@ npm start
 📊 健康检查: http://0.0.0.0:3000/health
 
 配置信息:
-- RSS Feed URL: http://localhost:8001/rss/人民日报
+- RSS Feed URL: http://localhost:8001/feed/MP_WXS_3517365363.rss
 - 目标Webhook: 未配置
 - 轮询间隔: 300秒
 
 启动自动轮询，间隔: 300秒
 
 === 开始定时获取RSS ===
-正在获取RSS: http://localhost:8001/rss/人民日报
-RSS标题: 人民日报
+正在获取RSS: http://localhost:8001/feed/MP_WXS_3517365363.rss
+RSS标题: 微信公众号
 发现 5 篇文章
 
 新文章:
@@ -207,7 +237,7 @@ curl http://localhost:3000/status
 ### 测试3: 手动获取RSS（可选）
 
 ```bash
-curl "http://localhost:3000/fetch?url=http://localhost:8001/rss/人民日报"
+curl "http://localhost:3000/fetch?url=http://localhost:8001/feed/MP_WXS_3517365363.rss"
 ```
 
 **预期输出：**
@@ -243,15 +273,16 @@ curl "http://localhost:3000/fetch?url=http://localhost:8001/rss/人民日报"
 
 2. **配置转发：**
    - 在 `.env` 中设置 `WEBHOOK_TARGET_URL`
-   - 将文章自动转发到你的其他服务
+   - 将文章自动转发到AI服务（如硅基流动、通义千问等）
 
 3. **查看详细文档：**
-   - README.md - 完整使用说明
+   - README.md - 完整使用说明（包含AI服务集成指南）
    - DOCKER.md - Docker部署方式
    - TESTING.md - 集成测试指南
 
 ### 停止服务
 
+**Linux/macOS/Windows:**
 ```bash
 # 停止本服务（在运行npm start的终端按Ctrl+C）
 
@@ -292,12 +323,20 @@ curl http://localhost:8001
 **可能原因：**
 1. we-mp-rss中还没有添加该公众号
 2. RSS_FEED_URL配置错误
-3. 公众号名称包含特殊字符需要URL编码
+3. RSS feed文件名不正确
 
 **解决方法：**
+
+**Linux/macOS:**
 ```bash
 # 测试RSS地址是否可访问
-curl "http://localhost:8001/rss/人民日报"
+curl "http://localhost:8001/feed/MP_WXS_3517365363.rss"
+```
+
+**Windows (PowerShell):**
+```powershell
+# 测试RSS地址是否可访问
+Invoke-WebRequest -Uri "http://localhost:8001/feed/MP_WXS_3517365363.rss"
 ```
 
 如果返回XML内容，说明RSS源正常。
