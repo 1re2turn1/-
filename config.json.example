@@ -1,0 +1,19 @@
+{
+  "feeds": [
+    {
+      "name": "示例公众号1",
+      "url": "http://localhost:8001/feed/MP_WXS_3517365363.rss",
+      "enabled": true
+    },
+    {
+      "name": "示例公众号2",
+      "url": "http://localhost:8001/feed/MP_WXS_3544998530.rss",
+      "enabled": false
+    }
+  ],
+  "settings": {
+    "pollInterval": 300,
+    "webhookTargetUrl": "",
+    "maxArticlesPerFetch": 50
+  }
+}
